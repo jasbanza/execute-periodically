@@ -1,0 +1,25 @@
+{
+  "name": "execute-periodically",
+  "version": "1.0.0",
+  "description": "Periodically executes a provided function with error handling and logging",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jasbanza/execute-periodically.git"
+  },
+  "keywords": [
+    "nodejs",
+    "helper-function",
+    "automation"
+  ],
+  "author": "jasbanza",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jasbanza/execute-periodically/issues"
+  },
+  "homepage": "https://github.com/jasbanza/execute-periodically#readme"
+}
