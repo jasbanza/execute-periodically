@@ -1,8 +1,5 @@
 import out from "js-console-log-colors"; // Custom context colors for console logging by jasbanza
 
-let errorCount = 0; // Initialize the error count
-let lastErrorTimestamp = 0; // Initialize the timestamp of the last error
-
 /**
  * Periodically executes a provided function with error handling and logging.
  * It will execute a function, wait for the response, and then wait the timeout before retrying.
@@ -28,8 +25,11 @@ async function executePeriodically({
   debug = false,
   errorRPMLimitBeforeAbort = 0,
   continueAfterAbort = false, // New attribute for continuing after abort
-  continueDelayAfterAbort = 60000 // New attribute for delay after abort
+  continueDelayAfterAbort = 60000, // New attribute for delay after abort
 }) {
+  let abortExecution = false; // Variable to control execution abort
+  let errorCount = 0; // Initialize the error count
+  let lastErrorTimestamp = 0; // Initialize the timestamp of the last error
   /**
    * Executes the provided function, handles its output, and logs success or errors.
    *
@@ -63,16 +63,26 @@ async function executePeriodically({
       // Increment error count and check error rate limit
       errorCount++;
       const now = Date.now();
-      if (now - lastErrorTimestamp < 60000 && errorCount > errorRPMLimitBeforeAbort) {
+      if (
+        now - lastErrorTimestamp < 60000 &&
+        errorCount > errorRPMLimitBeforeAbort
+      ) {
         console.error(
           `Error rate limit exceeded. Aborting code execution due to ${errorCount} errors in the last minute.`
         );
 
         if (continueAfterAbort) {
+          // Set abortExecution to true before setting up the setTimeout
+          abortExecution = true;
           // Delay before resuming execution
-          setTimeout(executeFunction, continueDelayAfterAbort);
+          setTimeout(() => {
+            // Set abortExecution back to false inside the setTimeout callback
+            abortExecution = false;
+            executeFunction();
+          }, continueDelayAfterAbort);
           return;
         } else {
+          abortExecution = true; // Set abortExecution to true when halting code execution
           return; // Halt code execution
         }
       } else if (now - lastErrorTimestamp >= 60000) {
@@ -81,8 +91,10 @@ async function executePeriodically({
         lastErrorTimestamp = now;
       }
     } finally {
-      // Schedule the next execution
-      setTimeout(executeFunction, intervalMS);
+      // Schedule the next execution only if abortExecution is false
+      if (!abortExecution) {
+        setTimeout(executeFunction, intervalMS);
+      }
     }
   }
 
