@@ -11,9 +11,9 @@ import out from "js-console-log-colors"; // Custom context colors for console lo
  * @param {function|null} [options.cbSuccess=null] - A callback function to handle the function's output.
  * @param {function|null} [options.cbError=null] - A callback function to handle errors.
  * @param {boolean} [options.debug=false] - Set to true to suppress console output (default is false).
- * @param {number} [options.errorRPMLimitBeforeAbort=0] - Maximum allowed errors per minute before aborting (default is 0, no limit).
- * @param {boolean} [options.continueAfterAbort=false] - Whether to continue execution after aborting due to error rate limit (default is false).
- * @param {number} [options.continueDelayAfterAbort=60000] - Delay in milliseconds before resuming execution after aborting (default is 60000ms, 1 minute).
+ * @param {number} [options.errorLimitPerMinute=0] - Maximum allowed errors per minute before limit is reached (default is 0, no limit).
+ * @param {boolean} [options.continueAfterErrorLimit=false] - Whether to continue execution after aborting due to error rate limit (default is false).
+ * @param {number} [options.continueDelayAfterErrorLimit=60000] - Delay in milliseconds before resuming execution after rate limit is hit (default is 60000ms, 1 minute).
  * @returns {void}
  */
 async function executePeriodically({
@@ -23,9 +23,9 @@ async function executePeriodically({
   cbSuccess = null,
   cbError = null,
   debug = false,
-  errorRPMLimitBeforeAbort = 0,
-  continueAfterAbort = false, // New attribute for continuing after abort
-  continueDelayAfterAbort = 60000, // New attribute for delay after abort
+  errorRPMLimitBeforeAbort: errorLimitPerMinute = 0,
+  continueAfterErrorLimit = false, // New attribute for continuing after abort
+  continueDelayAfterErrorLimit = 60000, // New attribute for delay after abort
 }) {
   let abortExecution = false; // Variable to control execution abort
   let errorCount = 0; // Initialize the error count
@@ -65,13 +65,13 @@ async function executePeriodically({
       const now = Date.now();
       if (
         now - lastErrorTimestamp < 60000 &&
-        errorCount > errorRPMLimitBeforeAbort
+        errorCount > errorLimitPerMinute
       ) {
         console.error(
           `Error rate limit exceeded. Aborting code execution due to ${errorCount} errors in the last minute.`
         );
 
-        if (continueAfterAbort) {
+        if (continueAfterErrorLimit) {
           // Set abortExecution to true before setting up the setTimeout
           abortExecution = true;
           // Delay before resuming execution
@@ -79,7 +79,7 @@ async function executePeriodically({
             // Set abortExecution back to false inside the setTimeout callback
             abortExecution = false;
             executeFunction();
-          }, continueDelayAfterAbort);
+          }, continueDelayAfterErrorLimit);
           return;
         } else {
           abortExecution = true; // Set abortExecution to true when halting code execution
