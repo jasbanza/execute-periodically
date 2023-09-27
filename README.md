@@ -44,8 +44,8 @@ executePeriodically({
     cbSuccess: onSuccess, 
     cbError: onError, 
     debug: false,
-    errorLimitPerMinute: 0, // Maximum allowed errors per minute before limit is reached (default: 0, no limit)
-    continueAfterErrorLimit: false, // Whether to continue execution after aborting due to error rate limit (default: false)
+    errorLimitPerMinute: 10, // Maximum allowed errors per minute before limit is reached (default is 10. 0 = no limit).
+    continueAfterErrorLimit: true, // Whether to continue execution after aborting due to error rate limit (default: true)
     continueDelayAfterErrorLimit: 60000, // Delay in milliseconds before resuming execution after rate limit is hit (default: 60000ms, 1 minute)
 });
 ```
@@ -67,9 +67,9 @@ The `executePeriodically` function accepts the following options:
 - `debug` (optional):
   - Set to true to suppress console output (default: false).
 - `errorLimitPerMinute` (optional):
-  - Maximum allowed errors per minute before limit is reached (default: 0, no limit).
+  - Maximum allowed errors per minute before limit is reached (default is 10. 0 = no limit).
 - `continueAfterErrorLimit` (optional):
-  - Whether to continue execution after aborting due to error rate limit (default: false).
+  - Whether to continue execution after aborting due to error rate limit (default: true).
 - `continueDelayAfterErrorLimit` (optional):
   - Delay in milliseconds before resuming execution after rate limit is hit (default: 60000ms, 1 minute).
 

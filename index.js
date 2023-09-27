@@ -11,8 +11,8 @@ import out from "js-console-log-colors"; // Custom context colors for console lo
  * @param {function|null} [options.cbSuccess=null] - A callback function to handle the function's output.
  * @param {function|null} [options.cbError=null] - A callback function to handle errors.
  * @param {boolean} [options.debug=false] - Set to true to suppress console output (default is false).
- * @param {number} [options.errorLimitPerMinute=0] - Maximum allowed errors per minute before limit is reached (default is 0, no limit).
- * @param {boolean} [options.continueAfterErrorLimit=false] - Whether to continue execution after aborting due to error rate limit (default is false).
+ * @param {number} [options.errorLimitPerMinute=10] - Maximum allowed errors per minute before limit is reached (default is 10. 0 = no limit).
+ * @param {boolean} [options.continueAfterErrorLimit=true] - Whether to continue execution after aborting due to error rate limit (default is true).
  * @param {number} [options.continueDelayAfterErrorLimit=60000] - Delay in milliseconds before resuming execution after rate limit is hit (default is 60000ms, 1 minute).
  * @returns {void}
  */
@@ -23,8 +23,8 @@ async function executePeriodically({
   cbSuccess = null,
   cbError = null,
   debug = false,
-  errorRPMLimitBeforeAbort: errorLimitPerMinute = 0,
-  continueAfterErrorLimit = false, // New attribute for continuing after abort
+  errorLimitPerMinute = 10,
+  continueAfterErrorLimit = true, // New attribute for continuing after abort
   continueDelayAfterErrorLimit = 60000, // New attribute for delay after abort
 }) {
   let abortExecution = false; // Variable to control execution abort
@@ -65,7 +65,7 @@ async function executePeriodically({
       const now = Date.now();
       if (
         now - lastErrorTimestamp < 60000 &&
-        errorCount > errorLimitPerMinute
+        errorCount > errorLimitPerMinute && errorLimitPerMinute != 0
       ) {
         console.error(
           `Error rate limit exceeded. Aborting code execution due to ${errorCount} errors in the last minute.`
