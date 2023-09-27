@@ -1,5 +1,8 @@
 import out from "js-console-log-colors"; // Custom context colors for console logging by jasbanza
 
+let errorCount = 0; // Initialize the error count
+let lastErrorTimestamp = 0; // Initialize the timestamp of the last error
+
 /**
  * Periodically executes a provided function with error handling and logging.
  * It will execute a function, wait for the response, and then wait the timeout before retrying.
@@ -11,6 +14,9 @@ import out from "js-console-log-colors"; // Custom context colors for console lo
  * @param {function|null} [options.cbSuccess=null] - A callback function to handle the function's output.
  * @param {function|null} [options.cbError=null] - A callback function to handle errors.
  * @param {boolean} [options.debug=false] - Set to true to suppress console output (default is false).
+ * @param {number} [options.errorRPMLimitBeforeAbort=0] - Maximum allowed errors per minute before aborting (default is 0, no limit).
+ * @param {boolean} [options.continueAfterAbort=false] - Whether to continue execution after aborting due to error rate limit (default is false).
+ * @param {number} [options.continueDelayAfterAbort=60000] - Delay in milliseconds before resuming execution after aborting (default is 60000ms, 1 minute).
  * @returns {void}
  */
 async function executePeriodically({
@@ -19,7 +25,10 @@ async function executePeriodically({
   args = [],
   cbSuccess = null,
   cbError = null,
-  debug = false 
+  debug = false,
+  errorRPMLimitBeforeAbort = 0,
+  continueAfterAbort = false, // New attribute for continuing after abort
+  continueDelayAfterAbort = 60000 // New attribute for delay after abort
 }) {
   /**
    * Executes the provided function, handles its output, and logs success or errors.
@@ -49,6 +58,27 @@ async function executePeriodically({
             fn.name || "Anonymous Function"
           } encountered an error: ${error}`
         );
+      }
+
+      // Increment error count and check error rate limit
+      errorCount++;
+      const now = Date.now();
+      if (now - lastErrorTimestamp < 60000 && errorCount > errorRPMLimitBeforeAbort) {
+        console.error(
+          `Error rate limit exceeded. Aborting code execution due to ${errorCount} errors in the last minute.`
+        );
+
+        if (continueAfterAbort) {
+          // Delay before resuming execution
+          setTimeout(executeFunction, continueDelayAfterAbort);
+          return;
+        } else {
+          return; // Halt code execution
+        }
+      } else if (now - lastErrorTimestamp >= 60000) {
+        // Reset error count if more than a minute has passed since the last error
+        errorCount = 1;
+        lastErrorTimestamp = now;
       }
     } finally {
       // Schedule the next execution
