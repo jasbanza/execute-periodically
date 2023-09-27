@@ -43,7 +43,10 @@ executePeriodically({
     args: [], 
     cbSuccess: onSuccess, 
     cbError: onError, 
-    debug: false 
+    debug: false,
+    errorRPMLimitBeforeAbort: 0, // Maximum allowed errors per minute before aborting (default: 0, no limit)
+    continueAfterAbort: false, // Whether to continue execution after aborting due to error rate limit (default: false)
+    continueDelayAfterAbort: 60000, // Delay in milliseconds before resuming execution after aborting (default: 60000ms, 1 minute)
 });
 ```
 
@@ -51,12 +54,25 @@ executePeriodically({
 
 The `executePeriodically` function accepts the following options:
 
-- `intervalMS` (optional): The time interval in milliseconds between function calls (default: 5000).
-- `fn`: The function to be executed periodically.
-- `args` (optional): An array of arguments to pass to the function (default: []).
-- `cbSuccess` (optional): A callback function to handle the function's output.
-- `cbError` (optional): A callback function to handle errors.
-- `debug` (optional): Set to true to suppress console output (default: false).
+- `intervalMS` (optional): 
+  - The time interval in milliseconds between function calls (default: 5000).
+- `fn`:
+  - The function to be executed periodically.
+- `args` (optional):
+  - An array of arguments to pass to the function (default: []).
+- `cbSuccess` (optional):
+  - A callback function to handle the function's output.
+- `cbError` (optional):
+  - A callback function to handle errors.
+- `debug` (optional):
+  - Set to true to suppress console output (default: false).
+- `errorRPMLimitBeforeAbort` (optional):
+  - Maximum allowed errors per minute before aborting (default: 0, no limit).
+- `continueAfterAbort` (optional):
+  - Whether to continue execution after aborting due to error rate limit (default: false).
+- `continueDelayAfterAbort` (optional):
+  - Delay in milliseconds before resuming execution after aborting (default: 60000ms, 1 minute).
+
 
 ## Contributing
 
