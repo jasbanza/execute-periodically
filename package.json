@@ -1,6 +1,6 @@
 {
   "name": "execute-periodically",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Periodically executes a provided function with error handling and logging",
   "main": "index.js",
   "type": "module",

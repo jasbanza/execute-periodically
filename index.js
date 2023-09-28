@@ -41,7 +41,7 @@ async function executePeriodically({
       if (cbSuccess && typeof cbSuccess === "function") {
         cbSuccess(output);
       }
-      if (!debug) {
+      if (debug) {
         out.success(
           `Periodic function call: ${
             fn.name || "Anonymous Function"
@@ -52,7 +52,7 @@ async function executePeriodically({
       if (cbError && typeof cbError === "function") {
         cbError(error);
       }
-      if (!debug) {
+      if (debug) {
         out.failure(
           `Periodic function call ${
             fn.name || "Anonymous Function"
